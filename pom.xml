@@ -12,7 +12,7 @@
 	<artifactId>filmorate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>filmorate</name>
-	<description>Помощь при выборе фильмов</description>
+	<description>Assistance in film selection</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
