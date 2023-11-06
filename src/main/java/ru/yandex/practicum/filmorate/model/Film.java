@@ -27,8 +27,8 @@ public class Film {
     private int duration;
     private Set<Integer> likes;
 
-    public void checkLikesList(){
-        if (likes == null){
+    public void checkLikesList() {
+        if (likes == null) {
             likes = new HashSet<>();
         }
     }
