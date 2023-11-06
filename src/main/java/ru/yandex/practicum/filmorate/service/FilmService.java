@@ -14,8 +14,8 @@ import java.util.List;
 
 @Service
 public class FilmService {
-    final private InMemoryFilmStorage inMemoryFilmStorage;
-    final private InMemoryUserStorage inMemoryUserStorage;
+    private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final InMemoryUserStorage inMemoryUserStorage;
 
     @Autowired
     public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
