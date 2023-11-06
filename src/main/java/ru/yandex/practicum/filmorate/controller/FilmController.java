@@ -4,10 +4,14 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.util.*;
 
@@ -31,6 +35,14 @@ public class FilmController {
         return addedFilm;
     }
 
+    @GetMapping("/{filmId}")
+    public Film getFilm(@PathVariable int filmId) {
+        log.info("Получен запрос на получение фильма");
+        Film filmToGet = filmService.getFilm(filmId);
+        log.info("Получен фильм с Id: {}", filmToGet.getId());
+        return filmToGet;
+    }
+
     @GetMapping
     public Collection<Film> getAllFilms() {
         log.info("Получен запрос на получение всех фильмов");
@@ -45,5 +57,32 @@ public class FilmController {
         Film updatedFilm = filmService.updateFilm(film);
         log.info("Фильм успешно обновлен. ID фильма: {}", updatedFilm.getId());
         return updatedFilm;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable int id) {
+        log.info("Получен запрос на удаление фильма с ID: {}", id);
+        filmService.deleteFilm(id);
+        log.info("Фильм удален. ID фильма: {}", id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getTop(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getTop(count);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<List<String>> nonFoundHandler(final NotFoundException e) {
+        return new ResponseEntity<>(List.of(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }
