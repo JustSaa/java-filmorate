@@ -4,11 +4,8 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -95,10 +92,5 @@ public class UserController {
         List<User> userFriends = userService.getFriends(userId);
         log.info("Количество друзей у пользователя с ID: {}", userFriends.size());
         return userFriends;
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<List<String>> nonFoundHandler(final NotFoundException e) {
-        return new ResponseEntity<>(List.of(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

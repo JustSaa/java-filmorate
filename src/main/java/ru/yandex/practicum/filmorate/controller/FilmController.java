@@ -4,11 +4,8 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -78,10 +75,5 @@ public class FilmController {
     @GetMapping("/popular")
     public List<Film> getTop(@RequestParam(defaultValue = "10") int count) {
         return filmService.getTop(count);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<List<String>> nonFoundHandler(final NotFoundException e) {
-        return new ResponseEntity<>(List.of(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 }

@@ -12,4 +12,10 @@ public interface UserStorage {
     Collection<User> getAllUsers();
 
     User updateUser(User user);
+
+    User getUser(int idUser);
+
+    void addToFriend(int userId, int userFriendId);
+
+    void deleteFromFriends(int userId, int userFriendId);
 }

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Getter
@@ -29,6 +30,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getAllFilms() {
         return films.values();
+    }
+
+    @Override
+    public Film getFilm(int filmId) {
+        checkFilmInData(filmId);
+        return films.get(filmId);
     }
 
     @Override
@@ -53,8 +60,41 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public void realiseDateValidation(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
+        if (film.getReleaseDate() == null) {
+            throw new ValidationException("Дата релиза пуста");
+        } else {
+            if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+                throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
+            }
         }
+    }
+
+    public void checkFilmInData(int filmId) {
+        if (!films.containsKey(filmId)) {
+            throw new NotFoundException("Фильм с ID: " + filmId + "не найден");
+        }
+    }
+
+    private void updateLikesList(int filmId, int userId, boolean add) {
+        Film film = getFilm(filmId);
+        Set<Integer> likes = film.getLikes();
+
+        if (add) {
+            if (!likes.add(userId)) {
+                throw new NotFoundException("Пользователь уже лайкнул этот фильм");
+            }
+        } else {
+            if (!likes.remove(userId)) {
+                throw new NotFoundException("Пользователь не найден в списке лайков");
+            }
+        }
+    }
+
+    public void addLike(int filmId, int userId) {
+        updateLikesList(filmId, userId, true);
+    }
+
+    public void deleteLike(int filmId, int userId) {
+        updateLikesList(filmId, userId, false);
     }
 }

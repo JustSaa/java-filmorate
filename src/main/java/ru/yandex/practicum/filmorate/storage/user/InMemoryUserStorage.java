@@ -64,4 +64,28 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Пользователь с " + userId + " не найден");
         }
     }
+
+    private void updateFriendList(int userId, int userFriendId, boolean add) {
+        User user = getUser(userId);
+        User userFriend = getUser(userFriendId);
+        if (user != null && userFriend != null) {
+            if (add) {
+                user.getFriends().add(userFriendId);
+                userFriend.getFriends().add(userId);
+            } else {
+                user.getFriends().remove(userFriendId);
+                userFriend.getFriends().remove(userId);
+            }
+        } else {
+            throw new NotFoundException("Пользователь или друг не был найден");
+        }
+    }
+
+    public void addToFriend(int userId, int userFriendId) {
+        updateFriendList(userId, userFriendId, true);
+    }
+
+    public void deleteFromFriends(int userId, int userFriendId) {
+        updateFriendList(userId, userFriendId, false);
+    }
 }

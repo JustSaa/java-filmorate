@@ -13,4 +13,11 @@ public interface FilmStorage {
 
     void deleteFilm(int filmId);
 
+    Film getFilm(int filmId);
+
+    void checkFilmInData(int filmId);
+
+    void addLike(int filmId, int userId);
+
+    void deleteLike(int filmId, int userId);
 }
