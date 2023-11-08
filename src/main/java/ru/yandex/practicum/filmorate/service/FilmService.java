@@ -19,23 +19,23 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+        return filmStorage.add(film);
     }
 
     public Film getFilm(int filmId) {
-        return filmStorage.getFilm(filmId);
+        return filmStorage.get(filmId);
     }
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        return filmStorage.getAll();
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+        return filmStorage.update(film);
     }
 
     public void deleteFilm(int filmId) {
-        filmStorage.deleteFilm(filmId);
+        filmStorage.delete(filmId);
     }
 
     public void addLike(int filmId, int userId) {
@@ -47,7 +47,7 @@ public class FilmService {
     }
 
     public List<Film> getTop(int count) {
-        Collection<Film> allFilms = filmStorage.getAllFilms();
+        Collection<Film> allFilms = filmStorage.getAll();
         List<Film> filmList = new ArrayList<>(allFilms);
         filmList.sort((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()));
         int actualCount = Math.min(count, filmList.size());

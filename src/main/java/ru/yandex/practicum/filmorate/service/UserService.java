@@ -18,19 +18,19 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        return userStorage.addUser(user);
+        return userStorage.add(user);
     }
 
     public void deleteUser(int userId) {
-        userStorage.deleteUser(userId);
+        userStorage.delete(userId);
     }
 
     public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userStorage.getAll();
     }
 
     public User updateUser(User user) {
-        return userStorage.updateUser(user);
+        return userStorage.update(user);
     }
 
     public void addToFriend(int userId, int userFriendId) {
@@ -63,6 +63,6 @@ public class UserService {
     }
 
     public User getUser(int idUser) {
-        return userStorage.getUser(idUser);
+        return userStorage.get(idUser);
     }
 }

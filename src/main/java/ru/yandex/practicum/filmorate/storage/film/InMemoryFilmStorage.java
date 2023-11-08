@@ -19,7 +19,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int idFilm = 0;
 
     @Override
-    public Film addFilm(Film film) {
+    public Film add(Film film) {
         realiseDateValidation(film);
         Film filmToAdd = film.toBuilder().id(++idFilm).build();
         filmToAdd.checkLikesList();
@@ -28,18 +28,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getAllFilms() {
+    public Collection<Film> getAll() {
         return films.values();
     }
 
     @Override
-    public Film getFilm(int filmId) {
+    public Film get(int filmId) {
         checkFilmInData(filmId);
         return films.get(filmId);
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         realiseDateValidation(film);
         film.checkLikesList();
         if (films.containsKey(film.getId())) {
@@ -51,7 +51,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(int filmId) {
+    public void delete(int filmId) {
         if (films.containsKey(filmId)) {
             films.remove(filmId);
         } else {
@@ -76,7 +76,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private void updateLikesList(int filmId, int userId, boolean add) {
-        Film film = getFilm(filmId);
+        Film film = get(filmId);
         Set<Integer> likes = film.getLikes();
 
         if (add) {

@@ -19,7 +19,7 @@ public class InMemoryUserStorage implements UserStorage {
     private int idUser = 0;
 
     @Override
-    public User addUser(User user) {
+    public User add(User user) {
         User userToAdd = user.toBuilder().id(++idUser).build();
         userToAdd = nameValidator(userToAdd);
         userToAdd.createFriendList();
@@ -28,23 +28,23 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(int userId) {
+    public void delete(int userId) {
         userCheckInData(userId);
         users.remove(userId);
     }
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<User> getAll() {
         return users.values();
     }
 
-    public User getUser(int userId) {
+    public User get(int userId) {
         userCheckInData(userId);
         return users.get(userId);
     }
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         userCheckInData(user.getId());
         User userUpdated = nameValidator(user);
         userUpdated.createFriendList();
@@ -66,8 +66,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private void updateFriendList(int userId, int userFriendId, boolean add) {
-        User user = getUser(userId);
-        User userFriend = getUser(userFriendId);
+        User user = get(userId);
+        User userFriend = get(userFriendId);
         if (user != null && userFriend != null) {
             if (add) {
                 user.getFriends().add(userFriendId);
