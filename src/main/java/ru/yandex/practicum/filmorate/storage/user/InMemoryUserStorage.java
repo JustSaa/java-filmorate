@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.Map;
 @Component
 @Getter
 @Setter
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements Storage<User> {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int idUser = 0;
@@ -63,29 +64,5 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Пользователь с " + userId + " не найден");
         }
-    }
-
-    private void updateFriendList(int userId, int userFriendId, boolean add) {
-        User user = get(userId);
-        User userFriend = get(userFriendId);
-        if (user != null && userFriend != null) {
-            if (add) {
-                user.getFriends().add(userFriendId);
-                userFriend.getFriends().add(userId);
-            } else {
-                user.getFriends().remove(userFriendId);
-                userFriend.getFriends().remove(userId);
-            }
-        } else {
-            throw new NotFoundException("Пользователь или друг не был найден");
-        }
-    }
-
-    public void addToFriend(int userId, int userFriendId) {
-        updateFriendList(userId, userFriendId, true);
-    }
-
-    public void deleteFromFriends(int userId, int userFriendId) {
-        updateFriendList(userId, userFriendId, false);
     }
 }
