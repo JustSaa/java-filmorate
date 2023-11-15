@@ -2,15 +2,17 @@ package ru.yandex.practicum.filmorate.model;
 
 import javax.validation.constraints.*;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder(toBuilder = true)
 @Data
+@AllArgsConstructor
 public class User {
     private int id;
     @NotBlank(message = "Электронная почта не может быть пустой")
@@ -22,11 +24,11 @@ public class User {
     private String name;
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-    private Set<Integer> friends;
+    private Map<Integer, Boolean> friends;
 
     public void createFriendList() {
         if (friends == null) {
-            friends = new HashSet<>();
+            friends = new HashMap<>();
         }
     }
 }

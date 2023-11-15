@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+@Component("memoryStorage")
 @Getter
 @Setter
 public class InMemoryUserStorage implements Storage<User> {
