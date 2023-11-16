@@ -14,9 +14,8 @@ import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("databaseFilmStorage")
@@ -55,14 +54,12 @@ public class FilmDbStorage implements Storage<Film> {
         String description = resultSet.getString("description");
         LocalDate releaseDate = resultSet.getDate("releaseDate").toLocalDate();
         int duration = resultSet.getInt("duration");
-        //Set<Integer> likes = resultSet.getString("name");
-        Set<Integer> likes = null;
+        Set<Integer> likes = getLikesFromDB(id);
         List<Genre> genres = getGenresFromDB(id);
         Mpa mpa = getMpaFromDB(resultSet.getInt("mpa_id"));
         int rate = resultSet.getInt("rate");
 
         return new Film(id, name, description, releaseDate, duration, rate, likes, genres, mpa);
-        //return null;
     }
 
     @Override
@@ -72,12 +69,14 @@ public class FilmDbStorage implements Storage<Film> {
                 film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getRate(), film.getId());
         String sqlQueryForGetFilm = "SELECT * FROM films WHERE id=?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQueryForGetFilm, film.getId());
+        updateGenreInDB(film);
         return getFilmFromDB(filmRows);
     }
 
     @Override
     public void delete(int id) {
-
+        String sqlDeleteQuery = "DELETE FROM films WHERE id=?";
+        jdbcTemplate.update(sqlDeleteQuery, id);
     }
 
     @Override
@@ -111,6 +110,7 @@ public class FilmDbStorage implements Storage<Film> {
                     .mpa(getMpaFromDB(filmRows.getInt("mpa_id")))
                     .rate(filmRows.getInt("rate"))
                     .genres(getGenresFromDB(filmId))
+                    .likes(getLikesFromDB(filmId))
                     .build();
             return film;
         } else {
@@ -130,16 +130,36 @@ public class FilmDbStorage implements Storage<Film> {
     }
 
     private void updateGenreInDB(Film film) {
-        if (film.getGenres() == null) {
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            deleteGenresForFilm(film.getId());
             return;
         }
+
+        Set<Integer> genreIds = new HashSet<>();
         List<Genre> genres = film.getGenres();
-        String sqlQueryForGenre = "INSERT INTO film_genres(film_id, genre_id) VALUES (?,?)";
-        jdbcTemplate.batchUpdate(sqlQueryForGenre, genres, genres.size(),
+
+        List<Genre> uniqueGenres = genres.stream()
+                .filter(genre -> genreIds.add(genre.getId()))
+                .collect(Collectors.toList());
+
+        deleteGenresForFilm(film.getId());
+
+        String sqlQueryForGenre = "INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)";
+        jdbcTemplate.batchUpdate(sqlQueryForGenre, uniqueGenres, uniqueGenres.size(),
                 (ps, genre) -> {
                     ps.setInt(1, film.getId());
                     ps.setInt(2, genre.getId());
                 });
+    }
+
+
+    private void deleteGenresForFilm(int filmId) {
+        String sqlQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        try {
+            jdbcTemplate.update(sqlQuery, filmId);
+        } catch (Exception e) {
+            log.error("Ошибка удаления жанров для filmId {}", filmId, e);
+        }
     }
 
 
@@ -153,6 +173,54 @@ public class FilmDbStorage implements Storage<Film> {
             String genreName = resultSet.getString("name");
             return new Genre(genreId, genreName);
         }, filmId);
+    }
+
+    public void addLike(int filmId, int userId) {
+        String sqlQuery = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
+
+        try {
+            jdbcTemplate.update(sqlQuery, filmId, userId);
+        } catch (Exception e) {
+            log.error("Ошибка добавления лайка filmId {} и userId {}", filmId, userId, e);
+        }
+    }
+
+
+    public void deleteLike(int filmId, int userId) {
+        if (userId > 0 && userExists(userId)) {
+            String sqlQuery = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
+
+            try {
+                jdbcTemplate.update(sqlQuery, filmId, userId);
+            } catch (Exception e) {
+                log.error("Ошибка удаления лайка для filmId {} и userId {}", filmId, userId, e);
+            }
+        } else {
+            log.warn("Некорректное значение userId: {}", userId);
+            throw new NotFoundException("Ошибка проверки существования пользователя");
+        }
+    }
+
+    private boolean userExists(int userId) {
+        String sqlQuery = "SELECT COUNT(*) FROM users WHERE id = ?";
+        try {
+            Integer count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId);
+            return count != null && count > 0;
+        } catch (Exception e) {
+            log.error("Ошибка проверки существования пользователя с userId {}", userId, e);
+            return false;
+        }
+    }
+
+    public Set<Integer> getLikesFromDB(int filmId) {
+        String sqlQuery = "SELECT user_id FROM film_likes WHERE film_id = ?";
+
+        try {
+            return new HashSet<>(jdbcTemplate.queryForList(sqlQuery, Integer.class, filmId));
+        } catch (Exception e) {
+            log.error("Ошибка получения likes для filmId {}", filmId, e);
+            return new HashSet<>();
+        }
     }
 
 }

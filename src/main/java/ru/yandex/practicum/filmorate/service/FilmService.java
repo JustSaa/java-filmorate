@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.Storage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +19,7 @@ public class FilmService {
     private final Storage<Film> filmStorage;
 
     @Autowired
-    public FilmService(@Qualifier("databaseFilmStorage")Storage<Film> filmStorage) {
+    public FilmService(@Qualifier("databaseFilmStorage") Storage<Film> filmStorage) {
         this.filmStorage = filmStorage;
     }
 
@@ -65,10 +67,18 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        updateLikesList(filmId, userId, true);
+        if (filmStorage instanceof InMemoryFilmStorage) {
+            updateLikesList(filmId, userId, true);
+        } else {
+            ((FilmDbStorage) filmStorage).addLike(filmId, userId);
+        }
     }
 
     public void deleteLike(int filmId, int userId) {
-        updateLikesList(filmId, userId, false);
+        if (filmStorage instanceof InMemoryFilmStorage) {
+            updateLikesList(filmId, userId, false);
+        } else {
+            ((FilmDbStorage) filmStorage).deleteLike(filmId, userId);
+        }
     }
 }
