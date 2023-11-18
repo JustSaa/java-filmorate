@@ -1,11 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Storage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.*;
@@ -14,32 +11,32 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final Storage<User> userStorage;
+    private final UserDbStorage userDbStorage;
 
     @Autowired
-    public UserService(@Qualifier("databaseUsersStorage") Storage<User> userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserDbStorage userDbStorage) {
+        this.userDbStorage = userDbStorage;
     }
 
     public User addUser(User user) {
-        return userStorage.add(user);
+        return userDbStorage.add(user);
     }
 
     public void deleteUser(int userId) {
-        userStorage.delete(userId);
+        userDbStorage.delete(userId);
     }
 
     public Collection<User> getAllUsers() {
-        return userStorage.getAll();
+        return userDbStorage.getAll();
     }
 
     public User updateUser(User user) {
-        return userStorage.update(user);
+        return userDbStorage.update(user);
     }
 
     public List<User> getCommonFriends(int userId, int userFriendId) {
-        Map<Integer, Boolean> userFriends = getUser(userId).getFriends();
-        Map<Integer, Boolean> userFriendFriendList = getUser(userFriendId).getFriends();
+        Map<Integer, Boolean> userFriends = userDbStorage.getFriendListFromDB(userId);
+        Map<Integer, Boolean> userFriendFriendList = userDbStorage.getFriendListFromDB(userFriendId);
 
         Set<Integer> userCommonFriendsId = new HashSet<>(userFriends.keySet());
 
@@ -52,7 +49,7 @@ public class UserService {
         List<User> userFriendList = new ArrayList<>();
 
         for (Integer friendUserId : userCommonFriendsId) {
-            userFriendList.add(getUser(friendUserId));
+            userFriendList.add(getUserById(friendUserId));
         }
 
         return userFriendList;
@@ -61,58 +58,24 @@ public class UserService {
 
     public List<User> getFriends(int userId) {
         List<User> confirmedFriends = new ArrayList<>();
-        User user = getUser(userId);
 
-        for (Map.Entry<Integer, Boolean> entry : user.getFriends().entrySet()) {
+        for (Map.Entry<Integer, Boolean> entry : userDbStorage.getFriendListFromDB(userId).entrySet()) {
             if (entry.getValue()) {
-                confirmedFriends.add(getUser(entry.getKey()));
+                confirmedFriends.add(getUserById(entry.getKey()));
             }
         }
         return confirmedFriends;
     }
 
-
-    public User getUser(int userId) {
-        return userStorage.get(userId);
-    }
-
-    private void updateFriendList(int userId, int userFriendId, boolean add) {
-        User user = getUser(userId);
-        User userFriend = getUser(userFriendId);
-        if (user != null && userFriend != null) {
-            if (add) {
-                user.getFriends().put(userFriendId, true);
-                friendshipStatusCheck(userFriend, user);
-            } else {
-                user.getFriends().remove(userFriendId);
-                userFriend.getFriends().remove(userId);
-            }
-        } else {
-            throw new NotFoundException("Пользователь или друг не был найден");
-        }
-    }
-
-    private void friendshipStatusCheck(User user, User userFriend) {
-        if (user.getFriends().containsKey(userFriend.getId())) {
-            user.getFriends().put(userFriend.getId(), true);
-        } else {
-            user.getFriends().put(userFriend.getId(), false);
-        }
-    }
-
-    public void addToFriend(int userId, int userFriendId) {
-        if (userStorage instanceof UserDbStorage) {
-            ((UserDbStorage) userStorage).addToFriendDB(userId, userFriendId);
-        } else {
-            updateFriendList(userId, userFriendId, true);
-        }
+    public User getUserById(int userId) {
+        return userDbStorage.getById(userId);
     }
 
     public void deleteFromFriends(int userId, int userFriendId) {
-        if (userStorage instanceof UserDbStorage) {
-            ((UserDbStorage) userStorage).deleteFromFriendsDB(userId, userFriendId);
-        } else {
-            updateFriendList(userId, userFriendId, false);
-        }
+        userDbStorage.deleteFromFriendsDB(userId, userFriendId);
+    }
+
+    public void addToFriend(int userId, int userFriendId) {
+        userDbStorage.addToFriendDB(userId, userFriendId);
     }
 }

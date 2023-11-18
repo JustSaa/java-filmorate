@@ -42,9 +42,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable int id) {
+    public User getUserById(@PathVariable int id) {
         log.info("Получен запрос на получение пользователя");
-        User user = userService.getUser(id);
+        User user = userService.getUserById(id);
         log.info("Пользователь с ID: {} получен", id);
         return user;
     }

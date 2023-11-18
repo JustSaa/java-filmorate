@@ -26,12 +26,12 @@ public class MpaController {
     private final MpaService mpaService;
 
     @GetMapping
-    public Collection<Mpa> mpaAll() {
-        return mpaService.getMpa();
+    public Collection<Mpa> getAllMpa() {
+        return mpaService.getAllMpa();
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mpa mpaId(@PathVariable("id") @NotNull Integer id) {
-        return mpaService.getMpaId(id);
+    public Mpa getMpaById(@PathVariable("id") @NotNull Integer id) {
+        return mpaService.getMpaById(id);
     }
 }

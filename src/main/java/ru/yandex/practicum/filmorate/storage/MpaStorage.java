@@ -24,7 +24,7 @@ public class MpaStorage {
         return mpaSQL;
     }
 
-    public Mpa getMpaId(Integer id) {
+    public Mpa getMpaById(Integer id) {
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet("SELECT * FROM mpa WHERE id=?", id);
         mpaRows.next();
         if (mpaRows.last()) {

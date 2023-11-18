@@ -37,7 +37,7 @@ class FilmDbStorageTest {
                 .build();
 
         Film addedFilm = filmDbStorage.add(newFilm);
-        Film retrievedFilm = filmDbStorage.get(addedFilm.getId());
+        Film retrievedFilm = filmDbStorage.getById(addedFilm.getId());
 
         assertThat(retrievedFilm).isNotNull().usingRecursiveComparison().isEqualTo(addedFilm);
     }
@@ -102,6 +102,6 @@ class FilmDbStorageTest {
         Film addedFilm = filmDbStorage.add(newFilm);
         filmDbStorage.delete(addedFilm.getId());
 
-        assertThrows(Exception.class, () -> filmDbStorage.get(addedFilm.getId()));
+        assertThrows(Exception.class, () -> filmDbStorage.getById(addedFilm.getId()));
     }
 }

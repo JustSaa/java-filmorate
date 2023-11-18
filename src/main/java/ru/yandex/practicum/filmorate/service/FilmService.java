@@ -1,25 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.Storage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private final Storage<Film> filmStorage;
+    private final FilmDbStorage filmStorage;
 
     @Autowired
-    public FilmService(@Qualifier("databaseFilmStorage") Storage<Film> filmStorage) {
+    public FilmService(FilmDbStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
@@ -27,8 +21,8 @@ public class FilmService {
         return filmStorage.add(film);
     }
 
-    public Film getFilm(int filmId) {
-        return filmStorage.get(filmId);
+    public Film getFilmById(int filmId) {
+        return filmStorage.getById(filmId);
     }
 
     public Collection<Film> getAllFilms() {
@@ -43,42 +37,21 @@ public class FilmService {
         filmStorage.delete(filmId);
     }
 
-    public List<Film> getTop(int count) {
-        Collection<Film> allFilms = filmStorage.getAll();
-        List<Film> filmList = new ArrayList<>(allFilms);
-        filmList.sort((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()));
-        int actualCount = Math.min(count, filmList.size());
-        return filmList.subList(0, actualCount);
-    }
+    public List<Film> getTop(int topN) {
+        Map<Film, Integer> filmsLikes = filmStorage.getLikesForFilms();
 
-    private void updateLikesList(int filmId, int userId, boolean add) {
-        Film film = getFilm(filmId);
-        Set<Integer> likes = film.getLikes();
-
-        if (add) {
-            if (!likes.add(userId)) {
-                throw new NotFoundException("Пользователь уже лайкнул этот фильм");
-            }
-        } else {
-            if (!likes.remove(userId)) {
-                throw new NotFoundException("Пользователь не найден в списке лайков");
-            }
-        }
+        return filmsLikes.entrySet().stream()
+                .sorted(Map.Entry.<Film, Integer>comparingByValue().reversed())
+                .limit(topN)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     public void addLike(int filmId, int userId) {
-        if (filmStorage instanceof InMemoryFilmStorage) {
-            updateLikesList(filmId, userId, true);
-        } else {
-            ((FilmDbStorage) filmStorage).addLike(filmId, userId);
-        }
+        filmStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(int filmId, int userId) {
-        if (filmStorage instanceof InMemoryFilmStorage) {
-            updateLikesList(filmId, userId, false);
-        } else {
-            ((FilmDbStorage) filmStorage).deleteLike(filmId, userId);
-        }
+        filmStorage.deleteLike(filmId, userId);
     }
 }

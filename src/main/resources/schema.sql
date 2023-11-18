@@ -16,6 +16,8 @@ name VARCHAR(255),
 birthdate DATE,
 CONSTRAINT pk_user_id PRIMARY KEY (id)
 );
+CREATE UNIQUE index if not exists USER_EMAIL_UINDEX on users (email);
+CREATE UNIQUE index if not exists USER_LOGIN_UINDEX on users (login);
 
 CREATE TABLE IF NOT EXISTS PUBLIC.user_friends (
 user_id INTEGER,

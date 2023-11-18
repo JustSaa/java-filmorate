@@ -26,7 +26,7 @@ class UserDbStorageTest {
         UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
         userStorage.add(newUser);
 
-        User savedUser = userStorage.get(1);
+        User savedUser = userStorage.getById(1);
 
         assertThat(savedUser)
                 .isNotNull()
@@ -58,7 +58,7 @@ class UserDbStorageTest {
         User updatedUser = new User(1, "updated@email.ru", "vanya456", "Updated Ivan", LocalDate.of(1995, 5, 5), new HashMap<>());
         userStorage.update(updatedUser);
 
-        User retrievedUser = userStorage.get(1);
+        User retrievedUser = userStorage.getById(1);
 
         assertThat(retrievedUser)
                 .isNotNull()
@@ -74,7 +74,7 @@ class UserDbStorageTest {
 
         userStorage.delete(1);
 
-        assertThatThrownBy(() -> userStorage.get(1))
+        assertThatThrownBy(() -> userStorage.getById(1))
                 .isInstanceOf(NotFoundException.class);
     }
 }

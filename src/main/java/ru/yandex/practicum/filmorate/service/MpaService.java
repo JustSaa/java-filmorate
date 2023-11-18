@@ -14,12 +14,12 @@ public class MpaService {
 
     private final MpaStorage mpaStorage;
 
-    public Collection<Mpa> getMpa() {
+    public Collection<Mpa> getAllMpa() {
         return mpaStorage.getAllMpa();
     }
 
-    public Mpa getMpaId(Integer id) {
-        Mpa rating = mpaStorage.getMpaId(id);
+    public Mpa getMpaById(Integer id) {
+        Mpa rating = mpaStorage.getMpaById(id);
         if (rating == null) {
             throw new NotFoundException("rating id not found");
         }

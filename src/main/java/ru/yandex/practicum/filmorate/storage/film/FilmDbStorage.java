@@ -54,12 +54,11 @@ public class FilmDbStorage implements Storage<Film> {
         String description = resultSet.getString("description");
         LocalDate releaseDate = resultSet.getDate("releaseDate").toLocalDate();
         int duration = resultSet.getInt("duration");
-        Set<Integer> likes = getLikesFromDB(id);
-        List<Genre> genres = getGenresFromDB(id);
+        LinkedHashSet<Genre> genres = getGenresFromDB(id);
         Mpa mpa = getMpaFromDB(resultSet.getInt("mpa_id"));
         int rate = resultSet.getInt("rate");
 
-        return new Film(id, name, description, releaseDate, duration, rate, likes, genres, mpa);
+        return new Film(id, name, description, releaseDate, duration, rate, genres, mpa);
     }
 
     @Override
@@ -80,7 +79,7 @@ public class FilmDbStorage implements Storage<Film> {
     }
 
     @Override
-    public Film get(int id) {
+    public Film getById(int id) {
         String sql = "SELECT * FROM films WHERE id = ?";
         SqlRowSet filmRow = jdbcTemplate.queryForRowSet(sql, id);
         return getFilmFromDB(filmRow);
@@ -110,7 +109,6 @@ public class FilmDbStorage implements Storage<Film> {
                     .mpa(getMpaFromDB(filmRows.getInt("mpa_id")))
                     .rate(filmRows.getInt("rate"))
                     .genres(getGenresFromDB(filmId))
-                    .likes(getLikesFromDB(filmId))
                     .build();
             return film;
         } else {
@@ -136,7 +134,7 @@ public class FilmDbStorage implements Storage<Film> {
         }
 
         Set<Integer> genreIds = new HashSet<>();
-        List<Genre> genres = film.getGenres();
+        LinkedHashSet<Genre> genres = film.getGenres();
 
         List<Genre> uniqueGenres = genres.stream()
                 .filter(genre -> genreIds.add(genre.getId()))
@@ -163,16 +161,18 @@ public class FilmDbStorage implements Storage<Film> {
     }
 
 
-    private List<Genre> getGenresFromDB(int filmId) {
-
+    private LinkedHashSet<Genre> getGenresFromDB(int filmId) {
         String sqlQuery = "SELECT g.id, g.name FROM genre g " +
                 "JOIN film_genres fg ON g.id = fg.genre_id " +
                 "WHERE fg.film_id = ?";
-        return jdbcTemplate.query(sqlQuery, (resultSet, rowNum) -> {
+
+        List<Genre> genreList = jdbcTemplate.query(sqlQuery, new Object[]{filmId}, (resultSet, rowNum) -> {
             int genreId = resultSet.getInt("id");
             String genreName = resultSet.getString("name");
             return new Genre(genreId, genreName);
-        }, filmId);
+        });
+
+        return new LinkedHashSet<>(genreList);
     }
 
     public void addLike(int filmId, int userId) {
@@ -212,15 +212,24 @@ public class FilmDbStorage implements Storage<Film> {
         }
     }
 
-    public Set<Integer> getLikesFromDB(int filmId) {
-        String sqlQuery = "SELECT user_id FROM film_likes WHERE film_id = ?";
+    private int getLikesFromDB(int filmId) {
+        String sqlQuery = "SELECT COUNT(user_id) FROM film_likes WHERE film_id = ?";
 
         try {
-            return new HashSet<>(jdbcTemplate.queryForList(sqlQuery, Integer.class, filmId));
+            return jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId);
         } catch (Exception e) {
             log.error("Ошибка получения likes для filmId {}", filmId, e);
-            return new HashSet<>();
+            return 0;
         }
     }
 
+    public Map<Film, Integer> getLikesForFilms() {
+        Map<Film, Integer> likesMap = new HashMap<>();
+        Collection<Film> films = getAll();
+        for (Film f : films) {
+            int filmId = f.getId();
+            likesMap.put(f, getLikesFromDB(filmId));
+        }
+        return likesMap;
+    }
 }

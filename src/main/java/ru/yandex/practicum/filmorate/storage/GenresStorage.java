@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -15,9 +15,9 @@ public class GenresStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public Collection<Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genre");
-        Collection<Genre> genreSQL = new ArrayList<>();
+        List<Genre> genreSQL = new ArrayList<>();
         while (genreRows.next()) {
             genreSQL.add(getGenreBD(genreRows));
         }

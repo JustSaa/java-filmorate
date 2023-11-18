@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Storage;
@@ -11,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component("memoryStorage")
 @Getter
 @Setter
 public class InMemoryUserStorage implements Storage<User> {
@@ -23,7 +21,6 @@ public class InMemoryUserStorage implements Storage<User> {
     public User add(User user) {
         User userToAdd = user.toBuilder().id(++idUser).build();
         userToAdd = nameValidator(userToAdd);
-        userToAdd.createFriendList();
         users.put(userToAdd.getId(), userToAdd);
         return userToAdd;
     }
@@ -39,7 +36,7 @@ public class InMemoryUserStorage implements Storage<User> {
         return users.values();
     }
 
-    public User get(int userId) {
+    public User getById(int userId) {
         userCheckInData(userId);
         return users.get(userId);
     }
@@ -48,7 +45,6 @@ public class InMemoryUserStorage implements Storage<User> {
     public User update(User user) {
         userCheckInData(user.getId());
         User userUpdated = nameValidator(user);
-        userUpdated.createFriendList();
         users.put(userUpdated.getId(), userUpdated);
         return userUpdated;
     }

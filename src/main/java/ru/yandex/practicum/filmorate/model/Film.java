@@ -11,9 +11,7 @@ import lombok.Data;
 
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Builder(toBuilder = true)
 @Data
@@ -29,13 +27,7 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
     private int rate;
-    private Set<Integer> likes;
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;
+    @NotNull
     private Mpa mpa;
-
-    public void checkLikesList() {
-        if (likes == null) {
-            likes = new HashSet<>();
-        }
-    }
 }

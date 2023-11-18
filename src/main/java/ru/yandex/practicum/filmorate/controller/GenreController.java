@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenresService;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.List;
 
 @Validated
 @RestController
@@ -26,12 +26,12 @@ public class GenreController {
     private final GenresService genresService;
 
     @GetMapping
-    public Collection<Genre> genreAll() {
-        return genresService.getGenre();
+    public List<Genre> getAllGenres() {
+        return genresService.getAllGenres();
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Genre genreId(@PathVariable("id") @NotNull Integer id) {
+    public Genre getGenreId(@PathVariable("id") @NotNull Integer id) {
         return genresService.getGenreId(id);
     }
 }

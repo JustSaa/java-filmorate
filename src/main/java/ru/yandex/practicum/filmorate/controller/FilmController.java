@@ -32,9 +32,9 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film getFilm(@PathVariable int filmId) {
+    public Film getFilmById(@PathVariable int filmId) {
         log.info("Получен запрос на получение фильма");
-        Film filmToGet = filmService.getFilm(filmId);
+        Film filmToGet = filmService.getFilmById(filmId);
         log.info("Получен фильм с Id: {}", filmToGet.getId());
         return filmToGet;
     }

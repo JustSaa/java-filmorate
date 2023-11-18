@@ -22,7 +22,6 @@ public class InMemoryFilmStorage implements Storage<Film> {
     public Film add(Film film) {
         realiseDateValidation(film);
         Film filmToAdd = film.toBuilder().id(++idFilm).build();
-        filmToAdd.checkLikesList();
         films.put(filmToAdd.getId(), filmToAdd);
         return filmToAdd;
     }
@@ -33,7 +32,7 @@ public class InMemoryFilmStorage implements Storage<Film> {
     }
 
     @Override
-    public Film get(int filmId) {
+    public Film getById(int filmId) {
         checkFilmInData(filmId);
         return films.get(filmId);
     }
@@ -41,7 +40,6 @@ public class InMemoryFilmStorage implements Storage<Film> {
     @Override
     public Film update(Film film) {
         realiseDateValidation(film);
-        film.checkLikesList();
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;

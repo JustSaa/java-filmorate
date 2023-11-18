@@ -46,9 +46,8 @@ public class UserDbStorage implements Storage<User> {
         String login = resultSet.getString("login");
         String name = resultSet.getString("name");
         LocalDate birthday = resultSet.getDate("birthdate").toLocalDate();
-        Map<Integer, Boolean> friendsList = getFriendListFromDB(id);
 
-        return new User(id, email, login, name, birthday, friendsList);
+        return new User(id, email, login, name, birthday);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class UserDbStorage implements Storage<User> {
     }
 
     @Override
-    public User get(int id) {
+    public User getById(int id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         return getUserFromDB(userRows);
@@ -77,21 +76,19 @@ public class UserDbStorage implements Storage<User> {
     private User getUserFromDB(SqlRowSet userRows) {
         if (userRows.next()) {
             int userId = userRows.getInt("id");
-            User user = User.builder()
+            return User.builder()
                     .id(userId)
                     .email(userRows.getString("email"))
                     .login(userRows.getString("login"))
                     .name(userRows.getString("name"))
                     .birthday(userRows.getDate("birthdate").toLocalDate())
                     .build();
-            user.setFriends(getFriendListFromDB(userId));
-            return user;
         } else {
             throw new NotFoundException("Пользователь не найден в Базе Данных");
         }
     }
 
-    private Map<Integer, Boolean> getFriendListFromDB(int userId) {
+    public Map<Integer, Boolean> getFriendListFromDB(int userId) {
         Map<Integer, Boolean> friendList = new HashMap<>();
         SqlRowSet userFriendsRows = jdbcTemplate.queryForRowSet("SELECT * FROM user_friends WHERE user_id = ?", userId);
         while (userFriendsRows.next()) {
