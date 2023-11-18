@@ -10,7 +10,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,6 +26,8 @@ class FilmDbStorageTest {
     @Test
     void testAddAndGetFilm() {
         FilmDbStorage filmDbStorage = new FilmDbStorage(jdbcTemplate);
+        Genre actionGenre = new Genre(1, "Action");
+        Genre adventureGenre = new Genre(2, "Adventure");
 
         Film newFilm = Film.builder()
                 .name("Test Film")
@@ -33,7 +36,7 @@ class FilmDbStorageTest {
                 .duration(120)
                 .mpa(new Mpa(1, "PG-13"))
                 .rate(4)
-                .genres(List.of(new Genre(1, "Action"), new Genre(2, "Adventure")))
+                .genres(new LinkedHashSet<>(Arrays.asList(actionGenre, adventureGenre)))
                 .build();
 
         Film addedFilm = filmDbStorage.add(newFilm);
@@ -45,6 +48,8 @@ class FilmDbStorageTest {
     @Test
     void testUpdateFilm() {
         FilmDbStorage filmDbStorage = new FilmDbStorage(jdbcTemplate);
+        Genre actionGenre = new Genre(1, "Action");
+        Genre adventureGenre = new Genre(2, "Adventure");
 
         Film newFilm = Film.builder()
                 .name("Test Film")
@@ -53,11 +58,11 @@ class FilmDbStorageTest {
                 .duration(120)
                 .mpa(new Mpa(1, "PG-13"))
                 .rate(4)
-                .likes(new HashSet<>())
-                .genres(List.of(new Genre(1, "Action"), new Genre(2, "Adventure")))
+                .genres(new LinkedHashSet<>(Arrays.asList(actionGenre, adventureGenre)))
                 .build();
 
         Film addedFilm = filmDbStorage.add(newFilm);
+        Genre cartoonGenre = new Genre(2, "Драма");
         Film updatedFilm = Film.builder()
                 .id(addedFilm.getId())
                 .name("Updated Film")
@@ -66,8 +71,7 @@ class FilmDbStorageTest {
                 .duration(150)
                 .mpa(new Mpa(2, "PG"))
                 .rate(5)
-                .likes(new HashSet<>())
-                .genres(List.of(new Genre(3, "Мультфильм")))
+                .genres(new LinkedHashSet<>(List.of(cartoonGenre)))
                 .build();
 
         Film resultFilm = filmDbStorage.update(updatedFilm);
@@ -87,6 +91,8 @@ class FilmDbStorageTest {
     @Test
     void testDeleteFilm() {
         FilmDbStorage filmDbStorage = new FilmDbStorage(jdbcTemplate);
+        Genre actionGenre = new Genre(1, "Action");
+        Genre adventureGenre = new Genre(2, "Adventure");
 
         Film newFilm = Film.builder()
                 .name("Test Film")
@@ -95,8 +101,7 @@ class FilmDbStorageTest {
                 .duration(120)
                 .mpa(new Mpa(1, "R"))
                 .rate(4)
-                .genres(List.of(new Genre(1, "Action"), new Genre(2, "Adventure")))
-                .likes(new HashSet<>())
+                .genres(new LinkedHashSet<>(Arrays.asList(actionGenre, adventureGenre)))
                 .build();
 
         Film addedFilm = filmDbStorage.add(newFilm);

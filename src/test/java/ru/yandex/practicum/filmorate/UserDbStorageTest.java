@@ -22,7 +22,7 @@ class UserDbStorageTest {
 
     @Test
     public void testAddUser() {
-        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1), new HashMap<>());
+        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
         userStorage.add(newUser);
 
@@ -36,8 +36,8 @@ class UserDbStorageTest {
 
     @Test
     public void testGetAllUsers() {
-        User newUser1 = new User(1, "user1@email.ru", "user1", "User One", LocalDate.of(1990, 1, 1), new HashMap<>());
-        User newUser2 = new User(2, "user2@email.ru", "user2", "User Two", LocalDate.of(1995, 2, 2), new HashMap<>());
+        User newUser1 = new User(1, "user1@email.ru", "user1", "User One", LocalDate.of(1990, 1, 1));
+        User newUser2 = new User(2, "user2@email.ru", "user2", "User Two", LocalDate.of(1995, 2, 2));
 
         UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
         userStorage.add(newUser1);
@@ -51,11 +51,11 @@ class UserDbStorageTest {
 
     @Test
     public void testUpdateUser() {
-        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1), new HashMap<>());
+        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
         userStorage.add(newUser);
 
-        User updatedUser = new User(1, "updated@email.ru", "vanya456", "Updated Ivan", LocalDate.of(1995, 5, 5), new HashMap<>());
+        User updatedUser = new User(1, "updated@email.ru", "vanya456", "Updated Ivan", LocalDate.of(1995, 5, 5));
         userStorage.update(updatedUser);
 
         User retrievedUser = userStorage.getById(1);
@@ -68,7 +68,7 @@ class UserDbStorageTest {
 
     @Test
     public void testDeleteUser() {
-        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1), new HashMap<>());
+        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserDbStorage userStorage = new UserDbStorage(jdbcTemplate);
         userStorage.add(newUser);
 
