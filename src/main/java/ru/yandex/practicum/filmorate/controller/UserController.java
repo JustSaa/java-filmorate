@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,17 +18,17 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         log.info("Получен запрос на добавление пользователя");
-        User userToAdd = userService.addUser(user);
+        User userToAdd = userServiceImpl.addUser(user);
         log.info("Пользователь успешно добавлен. ID пользователя: {}", userToAdd.getId());
         return userToAdd;
     }
@@ -36,15 +36,15 @@ public class UserController {
     @GetMapping
     public Collection<User> getAllUsers() {
         log.info("Получен запрос на получение всех пользователей");
-        Collection<User> allUsers = userService.getAllUsers();
+        Collection<User> allUsers = userServiceImpl.getAllUsers();
         log.info("Получен список пользователей. Текущее количество: {}", allUsers.size());
         return allUsers;
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable int id) {
+    public User getUserById(@PathVariable int id) {
         log.info("Получен запрос на получение пользователя");
-        User user = userService.getUser(id);
+        User user = userServiceImpl.getUserById(id);
         log.info("Пользователь с ID: {} получен", id);
         return user;
     }
@@ -52,7 +52,7 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос на обновление пользователя");
-        User updatedUser = userService.updateUser(user);
+        User updatedUser = userServiceImpl.updateUser(user);
         log.info("Пользователь успешно обновлен. ID пользователя: {}", updatedUser.getId());
         return updatedUser;
     }
@@ -60,28 +60,28 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable int id) {
         log.info("Получен запрос на удаление пользователя с ID: {}", id);
-        userService.deleteUser(id);
+        userServiceImpl.deleteUser(id);
         log.info("Пользователь удален. ID пользователя: {}", id);
     }
 
     @PutMapping("/{userId}/friends/{userFriendId}")
     public void addToFriend(@PathVariable int userId, @PathVariable int userFriendId) {
         log.info("Получен запрос на добавление друга с :{} к пользователю с ID: {}", userFriendId, userId);
-        userService.addToFriend(userId, userFriendId);
+        userServiceImpl.addToFriend(userId, userFriendId);
         log.info("Пользователь добавлен в друзья");
     }
 
     @DeleteMapping("/{userId}/friends/{userFriendId}")
     public void deleteFromFriends(@PathVariable int userId, @PathVariable int userFriendId) {
         log.info("Получен запрос на удаление друга с :{} у пользователя с ID: {}", userFriendId, userId);
-        userService.deleteFromFriends(userId, userFriendId);
+        userServiceImpl.deleteFromFriends(userId, userFriendId);
         log.info("Пользователь с ID:{} удален из друзей", userFriendId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
         log.info("Получен запрос на удаление друга с :{} у пользователя с ID: {}", otherId, userId);
-        Collection<User> commonFriends = userService.getCommonFriends(userId, otherId);
+        Collection<User> commonFriends = userServiceImpl.getCommonFriends(userId, otherId);
         log.info("Количество общих друзьей: {}", commonFriends.size());
         return commonFriends;
     }
@@ -89,7 +89,7 @@ public class UserController {
     @GetMapping("/{userId}/friends")
     public List<User> getFriends(@PathVariable int userId) {
         log.info("Получен запрос списка друзей для пользователя с ID: {}", userId);
-        List<User> userFriends = userService.getFriends(userId);
+        List<User> userFriends = userServiceImpl.getFriends(userId);
         log.info("Количество друзей у пользователя с ID: {}", userFriends.size());
         return userFriends;
     }

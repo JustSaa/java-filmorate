@@ -11,5 +11,5 @@ public interface Storage<T> {
 
     void delete(int id);
 
-    T get(int id);
+    T getById(int id);
 }
