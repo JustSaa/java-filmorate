@@ -232,4 +232,12 @@ public class FilmDbStorage implements Storage<Film> {
         }
         return likesMap;
     }
+
+    public List<Film> getTop(int limit) {
+        String sqlQuery = "SELECT f.*, COUNT(fl.USER_ID) AS likes FROM FILMS f " +
+                "LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID " +
+                "GROUP BY f.ID " +
+                "ORDER BY likes DESC LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, limit);
+    }
 }
